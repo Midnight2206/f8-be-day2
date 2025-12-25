@@ -1,5 +1,5 @@
 import express from 'express';
-import { getComments, addComment, updateCommentById, deleteCommentById } from '#controllers/comments.controller.js';
+import { getComments, addComment, updateCommentById, deleteCommentById } from '#controllers/comment.controller.js';
 import { validateData } from '#middlewares/validateData.middleware.js';
 import { createCommentSchema, updateCommentSchema } from '#schemas/comment.schema.js';
 const router = express.Router(

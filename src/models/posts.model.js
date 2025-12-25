@@ -1,4 +1,4 @@
-import { loadDB, saveDB } from "#utils/jsonDB.js";
+import { loadDB, saveDB } from "../../utils/jsonDB.js";
 import createHttpError from "http-errors";
 import { nanoid } from "nanoid";
 

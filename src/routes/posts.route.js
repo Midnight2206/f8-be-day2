@@ -2,7 +2,7 @@ import express from 'express';
 import { getAllPosts, getPostById, createPostHandler, updatePostById, deletePostById } from '#controllers/posts.controller.js';
 import {validateData} from '#middlewares/validateData.middleware.js';
 import {createPostSchema, updatePostSchema} from '#schemas/post.schema.js';
-import commentRouter from '#routes/comments.routes.js';
+import commentRouter from '#routes/comment.routes.js';
 
 const router = express.Router();
 

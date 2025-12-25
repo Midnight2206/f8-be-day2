@@ -4,7 +4,7 @@ import {
   createComment,
   updateComment,
   deleteComment,
-} from "#src/models/comments.model.js";
+} from "#src/models/comment.model.js";
 
 export const getComments = asyncHandler(async (req, res) => {
   const { postId } = req.params;

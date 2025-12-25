@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "http-errors": "^2.0.1",
+    "nanoid": "^5.1.6",
+    "zod": "^4.2.1"
+  },
+  "imports": {
+    "#src/*": "./src/*",
+    "#configs/*": "./src/configs/*",
+    "#middlewares/*": "./src/middlewares/*",
+    "#routes/*": "./src/routes/*",
+    "#controllers/*": "./src/controllers/*",
+    "#utils/*": "./src/utils/*",
+    "#schemas/*": "./src/schemas/*"
+  },
+  "type": "module"
+}

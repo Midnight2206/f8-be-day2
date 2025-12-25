@@ -5,7 +5,7 @@ import {
   createPost,
   updatePost,
   deletePost,
-} from "#models/posts.model.js";
+} from "#models/post.model.js";
 
 // GET /api/posts
 export const getAllPosts = asyncHandler(async (req, res) => {

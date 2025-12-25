@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllPosts, getPostById, createPostHandler, updatePostById, deletePostById } from '#controllers/posts.controller.js';
+import { getAllPosts, getPostById, createPostHandler, updatePostById, deletePostById } from '#controllers/post.controller.js';
 import {validateData} from '#middlewares/validateData.middleware.js';
 import {createPostSchema, updatePostSchema} from '#schemas/post.schema.js';
 import commentsRouter from '#routes/comments.route.js';

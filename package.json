@@ -17,7 +17,8 @@
     "#routes/*": "./src/routes/*",
     "#controllers/*": "./src/controllers/*",
     "#utils/*": "./src/utils/*",
-    "#schemas/*": "./src/schemas/*"
+    "#schemas/*": "./src/schemas/*",
+    "#models/*": "./src/models/*"
   },
   "type": "module"
 }

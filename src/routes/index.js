@@ -1,6 +1,6 @@
 import express from 'express';
-import postRouter from '#routes/post.route.js';
-import commentRouter from '#routes/comment.route.js';
+import postRouter from '#routes/posts.route.js';
+import commentRouter from '#routes/comments.routes.js';
 
 const router = express.Router();
 router.use('/posts', postRouter);

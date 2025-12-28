@@ -34,7 +34,7 @@ export const getPostById = asyncHandler(async (req, res) => {
 export const createPostHandler = asyncHandler(async (req, res) => {
   const { title, content } = req.body;
 
-  const newPost = await createPost({ title, content });
+  const newPost = await createPost({ title, content, user: "Anymous" });
 
   res.status(201).json({
     success: true,

@@ -1,70 +1,102 @@
-import { loadDB, saveDB } from "../../utils/jsonDB.js";
+import mysqlPool from "../configs/mysql.config.js";
 import createHttpError from "http-errors";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 
+// map row MySQL → JSON camelCase
+const mapPost = (row) => ({
+  id: row.id.toString(),
+  title: row.title,
+  content: row.content,
+  user: row.user,
+  createdAt: row.created_at.toISOString(),
+  updatedAt: row.updated_at.toISOString(),
+});
+
+// Lấy tất cả posts
 export const findAllPosts = async () => {
-  return await loadDB("posts");
+  try {
+    const [rows] = await mysqlPool.query("SELECT * FROM posts ORDER BY created_at DESC");
+    return rows.map(mapPost);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    throw createHttpError(500, "Internal Server Error");
+  }
 };
 
+// Lấy post theo ID
 export const findPostById = async (postId) => {
-  const posts = await loadDB("posts");
-  const post = posts.find((p) => p.id === postId);
-
-  if (!post) {
-    throw createHttpError(404, "Post not found");
+  try {
+    const [rows] = await mysqlPool.query("SELECT * FROM posts WHERE id = ? LIMIT 1", [postId]);
+    if (rows.length === 0) throw createHttpError(404, "Post not found");
+    return mapPost(rows[0]);
+  } catch (error) {
+    if (!error.status) {
+      console.error("Error fetching post by ID:", error);
+      throw createHttpError(500, "Internal Server Error");
+    }
+    throw error;
   }
-
-  return post;
 };
 
-export const createPost = async ({ title, content }) => {
-  const posts = await loadDB("posts");
-  const now = new Date().toISOString();
+// Tạo post mới
+export const createPost = async ({ title, content, user }) => {
+  const nanoidNum = customAlphabet("0123456789", 16);
+  const id = BigInt(nanoidNum());
 
-  const newPost = {
-    id: nanoid(),
-    user: "Anonymous",
-    title,
-    content,
-    createdAt: now,
-    updatedAt: now,
-  };
+  try {
+    await mysqlPool.query(
+      `INSERT INTO posts (id, title, content, user)
+       VALUES (?, ?, ?, ?)`,
+      [id, title, content, user]
+    );
 
-  posts.push(newPost);
-  await saveDB("posts", posts);
-
-  return newPost;
+    return {
+      id: id.toString(),
+      title,
+      content,
+      user,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error("Error creating post:", error);
+    throw createHttpError(500, "Internal Server Error");
+  }
 };
 
+// Cập nhật post
 export const updatePost = async (postId, { title, content }) => {
-  const posts = await loadDB("posts");
-  const index = posts.findIndex((p) => p.id === postId);
+  try {
+    const [result] = await mysqlPool.query(
+      `UPDATE posts
+       SET title = COALESCE(?, title),
+           content = COALESCE(?, content)
+       WHERE id = ?`,
+      [title, content, postId]
+    );
 
-  if (index === -1) {
-    throw createHttpError(404, "Post not found");
+    if (result.affectedRows === 0) throw createHttpError(404, "Post not found");
+    return await findPostById(postId); // trả về bản ghi cập nhật
+  } catch (error) {
+    if (!error.status) {
+      console.error("Error updating post:", error);
+      throw createHttpError(500, "Internal Server Error");
+    }
+    throw error;
   }
-
-  const post = posts[index];
-
-  posts[index] = {
-    ...post,
-    title: title !== undefined ? title : post.title,
-    content: content !== undefined ? content : post.content,
-    updatedAt: new Date().toISOString(),
-  };
-
-  await saveDB("posts", posts);
-  return posts[index];
 };
 
+// Xóa post
 export const deletePost = async (postId) => {
-  const posts = await loadDB("posts");
-  const index = posts.findIndex((p) => p.id === postId);
-
-  if (index === -1) {
-    throw createHttpError(404, "Post not found");
+  try {
+    const [result] = await mysqlPool.query("DELETE FROM posts WHERE id = ?", [postId]);
+    if (result.affectedRows === 0) throw createHttpError(404, "Post not found");
+    return { message: "Post deleted successfully" };
+  } catch (error) {
+    if (!error.status) {
+      console.error("Error deleting post:", error);
+      throw createHttpError(500, "Internal Server Error");
+    }
+    throw error;
   }
-
-  posts.splice(index, 1);
-  await saveDB("posts", posts);
 };

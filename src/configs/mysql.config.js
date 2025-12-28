@@ -1,7 +1,9 @@
 import mysql2 from 'mysql2/promise';
 import "dotenv/config";
 
-const mysqlPool = mysql2.createPool({
+const mysqlPool = mysql2.createPool(
+  process.env.DATABASE_URL ||
+  {
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,

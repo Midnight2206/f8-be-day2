@@ -44,10 +44,11 @@ export const createPost = async ({ title, content, user }) => {
   const id = BigInt(nanoidNum());
 
   try {
+    const now = new Date();
     await mysqlPool.query(
-      `INSERT INTO posts (id, title, content, user)
-       VALUES (?, ?, ?, ?)`,
-      [id, title, content, user]
+      `INSERT INTO posts (id, title, content, user, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [id, title, content, user, now, now]
     );
 
     return {
@@ -55,14 +56,15 @@ export const createPost = async ({ title, content, user }) => {
       title,
       content,
       user,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
     };
   } catch (error) {
-    console.error("Error creating post:", error);
+    console.error("Error creating post:", error.sqlMessage || error);
     throw createHttpError(500, "Internal Server Error");
   }
 };
+
 
 // Cập nhật post
 export const updatePost = async (postId, { title, content }) => {

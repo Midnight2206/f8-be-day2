@@ -1,6 +1,6 @@
 import express from 'express';
 import { getComments, addComment, updateCommentById, deleteCommentById } from '#controllers/comment.controller.js';
-import { validateData } from '#middlewares/validateData.middleware.js';
+import { validateData } from '#middlewares/validateData.js';
 import { createCommentSchema, updateCommentSchema } from '#schemas/comment.schema.js';
 const router = express.Router(
     {mergeParams: true}

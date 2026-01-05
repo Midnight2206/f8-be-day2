@@ -4,7 +4,6 @@ const allowedOrigins = process.env.ALLOW_ORIGIN.split(",").map((origin) => origi
 
 export const corsOptions = {
   origin: (origin, callback) => {
-    console.log("ORIGIN =", origin);
 
     if (!origin) return callback(null, true);
 

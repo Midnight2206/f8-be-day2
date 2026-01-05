@@ -11,11 +11,7 @@ import {
 export const getAllPosts = asyncHandler(async (req, res) => {
   const posts = await findAllPosts();
 
-  res.json({
-    success: true,
-    message: "Posts retrieved successfully",
-    data: posts,
-  });
+  res.success(posts)
 });
 
 // GET /api/posts/:postId
@@ -23,11 +19,7 @@ export const getPostById = asyncHandler(async (req, res) => {
   const { postId } = req.params;
   const post = await findPostById(postId);
 
-  res.json({
-    success: true,
-    message: "Post retrieved successfully",
-    data: post,
-  });
+  res.success(post)
 });
 
 // POST /api/posts
@@ -36,11 +28,7 @@ export const createPostHandler = asyncHandler(async (req, res) => {
 
   const newPost = await createPost({ title, content, user: "Anymous" });
 
-  res.status(201).json({
-    success: true,
-    message: "Post created successfully",
-    data: newPost,
-  });
+  res.success(newPost, 201)
 });
 
 // PUT /api/posts/:postId
@@ -48,11 +36,7 @@ export const updatePostById = asyncHandler(async (req, res) => {
   const { postId } = req.params;
   const updatedPost = await updatePost(postId, req.body);
 
-  res.json({
-    success: true,
-    message: "Post updated successfully",
-    data: updatedPost,
-  });
+  res.success(updatePost)
 });
 
 // DELETE /api/posts/:postId
@@ -60,9 +44,5 @@ export const deletePostById = asyncHandler(async (req, res) => {
   const { postId } = req.params;
   await deletePost(postId);
 
-  res.json({
-    success: true,
-    message: "Post deleted successfully",
-    data: null,
-  });
+  res.success(null)
 });

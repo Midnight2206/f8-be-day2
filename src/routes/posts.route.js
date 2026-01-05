@@ -1,6 +1,6 @@
 import express from 'express';
 import { getAllPosts, getPostById, createPostHandler, updatePostById, deletePostById } from '#controllers/post.controller.js';
-import {validateData} from '#middlewares/validateData.middleware.js';
+import {validateData} from '#middlewares/validateData.js';
 import {createPostSchema, updatePostSchema} from '#schemas/post.schema.js';
 import commentsRouter from '#routes/comments.route.js';
 

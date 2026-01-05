@@ -27,11 +27,7 @@ export const addComment = asyncHandler(async (req, res) => {
     content,
   });
 
-  res.status(201).json({
-    success: true,
-    message: "Comment added successfully",
-    data: newComment,
-  });
+  res.success(newComment, 201)
 });
 
 export const updateCommentById = asyncHandler(async (req, res) => {
@@ -40,21 +36,11 @@ export const updateCommentById = asyncHandler(async (req, res) => {
 
   const updated = await updateComment(commentId, content);
 
-  res.json({
-    success: true,
-    message: "Comment updated successfully",
-    data: updated,
-  });
+  res.success(updated)
 });
 
 export const deleteCommentById = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
-
-  const deleted = await deleteComment(commentId);
-
-  res.json({
-    success: true,
-    message: "Comment deleted successfully",
-    data: deleted,
-  });
+  await deleteComment(commentId);
+  res.success(null)
 });

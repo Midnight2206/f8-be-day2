@@ -1,4 +1,4 @@
-import mysqlPool from "#configs/database.js";
+import mysqlPool from "#src/config/database.js";
 import createHttpError from "http-errors";
 
 // Map MySQL row → JSON (camelCase)

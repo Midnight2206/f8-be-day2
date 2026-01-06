@@ -1,3 +1,4 @@
+
 export default class BasePagination {
   constructor({
     page = 1,
@@ -27,16 +28,18 @@ export default class BasePagination {
   async handleRes(total, data) {
     const from = total === 0 ? 0 : this.offset + 1;
     const to = this.offset + data.length;
-
+    const pagination = {
+      total,
+      per_page: this.limit,
+      current_page: this.page
+    }
+    if (data.length) {
+      pagination.from = from
+      pagination.to = to
+    }
     return {
       data,
-      pagination: {
-        total,
-        per_page: this.limit,
-        from,
-        to,
-        current_page: this.page,
-      },
+      pagination
     };
   }
   async execute() {

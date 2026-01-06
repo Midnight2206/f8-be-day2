@@ -7,7 +7,7 @@ const mapPost = (row) => ({
   id: row.id.toString(),
   title: row.title,
   content: row.content,
-  user: row.user,
+  userId: row.user_id,
   createdAt: row.created_at.toISOString(),
   updatedAt: row.updated_at.toISOString(),
 });

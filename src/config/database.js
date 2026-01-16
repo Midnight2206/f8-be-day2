@@ -1,5 +1,4 @@
 import mysql2 from 'mysql2/promise';
-import "dotenv/config";
 
 const mysqlPool = mysql2.createPool(
   process.env.DATABASE_URL ||
@@ -10,7 +9,9 @@ const mysqlPool = mysql2.createPool(
   database: process.env.MYSQL_DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  supportBigNumbers: true,
+  bigNumberStrings: true,
 });
 
 export default mysqlPool;

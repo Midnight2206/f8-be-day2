@@ -1,4 +1,4 @@
-import mysqlPool from "#configs/database.js";
+import { getExecutor } from "#src/helper/dbExecutor.js";
 import createHttpError from "http-errors";
 
 // Hàm map MySQL row → camelCase JSON
@@ -12,8 +12,9 @@ const mapComment = (row) => ({
 });
 
 // Lấy tất cả comment theo postId
-export const findCommentsByPostId = async (postId) => {
-  const [rows] = await mysqlPool.query(
+export const findCommentsByPostId = async ({postId}) => {
+  const executor = getExecutor();
+  const [rows] = await executor(
     "SELECT * FROM comments WHERE post_id = ? ORDER BY created_at ASC",
     [postId]
   );
@@ -22,8 +23,9 @@ export const findCommentsByPostId = async (postId) => {
 };
 
 // Lấy comment theo commentId
-export const findCommentById = async (commentId) => {
-  const [rows] = await mysqlPool.query(
+export const findCommentById = async ({commentId}) => {
+  const executor = getExecutor();
+  const [rows] = await executor(
     "SELECT * FROM comments WHERE id = ? LIMIT 1",
     [commentId]
   );
@@ -34,7 +36,8 @@ export const findCommentById = async (commentId) => {
 
 // Tạo comment mới
 export const createComment = async ({ postId, author, content }) => {
-  const [result] = await mysqlPool.query(
+  const executor = getExecutor();
+  const [result] = await executor(
     `INSERT INTO comments (post_id, author, content)
        VALUES (?, ?, ?)`,
     [postId, author, content]
@@ -51,8 +54,9 @@ export const createComment = async ({ postId, author, content }) => {
 };
 
 // Cập nhật comment (MySQL tự cập nhật updated_at)
-export const updateComment = async (commentId, content) => {
-  const [result, _] = await mysqlPool.query(
+export const updateComment = async ({commentId, content}) => {
+  const executor = getExecutor();
+  const [result, _] = await executor(
     `UPDATE comments
        SET content = ?
        WHERE id = ?`,
@@ -66,8 +70,9 @@ export const updateComment = async (commentId, content) => {
 };
 
 // Xóa comment
-export const deleteComment = async (commentId) => {
-  const [result] = await mysqlPool.query(`DELETE FROM comments WHERE id = ?`, [
+export const deleteComment = async ({commentId}) => {
+  const executor = getExecutor();
+  const [result] = await executor(`DELETE FROM comments WHERE id = ?`, [
     commentId,
   ]);
 

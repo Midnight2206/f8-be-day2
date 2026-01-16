@@ -1,4 +1,4 @@
-import mysqlPool from "../config/database.js";
+import { getExecutor } from "#src/helper/dbExecutor.js";
 import createHttpError from "http-errors";
 import { customAlphabet } from "nanoid";
 import { buildWhere } from "#src/helper/buildWhereSQL.js";
@@ -12,13 +12,14 @@ const mapPost = (row) => ({
   updatedAt: row.updated_at.toISOString(),
 });
 
-export const countPosts = async (filter) => {
+export const countPosts = async ({filter}) => {
+  const executor = getExecutor();
   let sql = "SELECT COUNT(*) AS total FROM posts";
   const { where, params } = buildWhere(filter, {
     userId: "user_id",
   });
   sql += where;
-  const [rows] = await mysqlPool.query(sql, params);
+  const [rows] = await executor(sql, params);
   return rows[0].total;
 };
 // Lấy tất cả posts
@@ -29,6 +30,7 @@ export const findAllPosts = async ({
   sortBy,
   sortOrder,
 }) => {
+  const executor = getExecutor();
   const { where, params } = buildWhere(filter, {
     userId: "user_id",
   });
@@ -43,13 +45,14 @@ export const findAllPosts = async ({
   LIMIT ?
   OFFSET ?
 `;
-  const [rows] = await mysqlPool.query(sql, [...params, limit, offset]);
+  const [rows] = await executor(sql, [...params, limit, offset]);
   return rows.map(mapPost);
 };
 
 // Lấy post theo ID
-export const findPostById = async (postId) => {
-  const [rows] = await mysqlPool.query(
+export const findPostById = async ({postId}) => {
+  const executor = getExecutor();
+  const [rows] = await executor(
     "SELECT * FROM posts WHERE id = ? LIMIT 1",
     [postId]
   );
@@ -59,11 +62,12 @@ export const findPostById = async (postId) => {
 
 // Tạo post mới
 export const createPost = async ({ title, content, user }) => {
+  const executor = getExecutor();
   const nanoidNum = customAlphabet("0123456789", 16);
   const id = BigInt(nanoidNum());
 
   const now = new Date();
-  await mysqlPool.query(
+  await executor(
     `INSERT INTO posts (id, title, content, user, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
     [id, title, content, user, now, now]
@@ -80,8 +84,9 @@ export const createPost = async ({ title, content, user }) => {
 };
 
 // Cập nhật post
-export const updatePost = async (postId, { title, content }) => {
-  const [result] = await mysqlPool.query(
+export const updatePost = async ({postId, title, content}) => {
+  const executor = getExecutor();
+  const [result] = await executor(
     `UPDATE posts
        SET title = COALESCE(?, title),
            content = COALESCE(?, content)
@@ -90,12 +95,13 @@ export const updatePost = async (postId, { title, content }) => {
   );
 
   if (result.affectedRows === 0) throw createHttpError(404, "Post not found");
-  return await findPostById(postId);
+  return await findPostById({postId});
 };
 
 // Xóa post
-export const deletePost = async (postId) => {
-  const [result] = await mysqlPool.query("DELETE FROM posts WHERE id = ?", [
+export const deletePost = async ({postId}) => {
+  const executor = getExecutor();
+  const [result] = await executor("DELETE FROM posts WHERE id = ?", [
     postId,
   ]);
   if (result.affectedRows === 0) throw createHttpError(404, "Post not found");

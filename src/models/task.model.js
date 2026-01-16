@@ -1,4 +1,4 @@
-import mysqlPool from "#src/config/database.js";
+import { getExecutor } from "#src/helper/dbExecutor.js";
 import createHttpError from "http-errors";
 
 // Map MySQL row → JSON (camelCase)
@@ -16,7 +16,8 @@ const mapTask = (row) => ({
  * Lấy tất cả tasks
  */
 export const findAllTasks = async () => {
-  const [rows] = await mysqlPool.query(
+  const executor = getExecutor();
+  const [rows] = await executor(
     "SELECT * FROM tasks ORDER BY created_at DESC"
   );
   return rows.map(mapTask);
@@ -25,8 +26,9 @@ export const findAllTasks = async () => {
 /**
  * Lấy task theo ID
  */
-export const findTaskById = async (taskId) => {
-  const [rows] = await mysqlPool.query(
+export const findTaskById = async ({taskId}) => {
+  const executor = getExecutor();
+  const [rows] = await executor(
     "SELECT * FROM tasks WHERE id = ? LIMIT 1",
     [taskId]
   );
@@ -43,8 +45,8 @@ export const findTaskById = async (taskId) => {
  */
 export const createTask = async ({ title, level = "normal", color = "blue" }) => {
   const now = new Date();
-
-  const [result] = await mysqlPool.query(
+  const executor = getExecutor();
+  const [result] = await executor(
     `
     INSERT INTO tasks (title, level, color, completed, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -67,10 +69,10 @@ export const createTask = async ({ title, level = "normal", color = "blue" }) =>
  * Cập nhật task
  */
 export const updateTask = async (
-  taskId,
-  { title, level, color, completed }
+  {taskId, title, level, color, completed}
 ) => {
-  const [result] = await mysqlPool.query(
+  const executor = getExecutor();
+  const [result] = await executor(
     `
     UPDATE tasks
     SET
@@ -95,7 +97,8 @@ export const updateTask = async (
  * Toggle completed
  */
 export const toggleCompleted = async (taskId) => {
-  const [result] = await mysqlPool.query(
+  const executor = getExecutor();
+  const [result] = await executor(
     `
     UPDATE tasks
     SET completed = NOT completed,
@@ -115,8 +118,9 @@ export const toggleCompleted = async (taskId) => {
 /**
  * Xóa task
  */
-export const deleteTask = async (taskId) => {
-  const [result] = await mysqlPool.query(
+export const deleteTask = async ({taskId}) => {
+  const executor = getExecutor();
+  const [result] = await executor(
     "DELETE FROM tasks WHERE id = ?",
     [taskId]
   );

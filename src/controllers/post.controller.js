@@ -40,7 +40,7 @@ export const getAllPosts = asyncHandler(async (req, res) => {
 // GET /api/posts/:postId
 export const getPostById = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  const post = await findPostById(postId);
+  const post = await findPostById({postId});
 
   res.success(post);
 });
@@ -57,15 +57,15 @@ export const createPostHandler = asyncHandler(async (req, res) => {
 // PUT /api/posts/:postId
 export const updatePostById = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  const updatedPost = await updatePost(postId, req.body);
+  const updatedPost = await updatePost({postId, ...req.body});
 
-  res.success(updatePost);
+  res.success(updatedPost);
 });
 
 // DELETE /api/posts/:postId
 export const deletePostById = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  await deletePost(postId);
+  await deletePost({postId});
 
   res.success(null);
 });

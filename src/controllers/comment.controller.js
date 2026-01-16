@@ -8,7 +8,7 @@ import {
 
 export const getComments = asyncHandler(async (req, res) => {
   const { postId } = req.params;
-  const comments = await findCommentsByPostId(postId);
+  const comments = await findCommentsByPostId({postId});
 
   res.json({
     success: true,
@@ -34,13 +34,13 @@ export const updateCommentById = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
   const { content } = req.body;
 
-  const updated = await updateComment(commentId, content);
+  const updated = await updateComment({commentId, content});
 
   res.success(updated)
 });
 
 export const deleteCommentById = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
-  await deleteComment(commentId);
+  await deleteComment({commentId});
   res.success(null)
 });

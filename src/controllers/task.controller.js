@@ -18,7 +18,7 @@ export const getAllTasks = asyncHandler(async (req, res) => {
 // GET /api/tasks/:taskId
 export const getTaskById = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
-  const task = await findTaskById(taskId);
+  const task = await findTaskById({taskId});
 
   res.success(task)
 });
@@ -35,14 +35,14 @@ export const createTaskHandler = asyncHandler(async (req, res) => {
 // PATCH /api/tasks/:taskId
 export const updateTaskById = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
-  const updatedTask = await updateTask(taskId, req.body);
+  const updatedTask = await updateTask({taskId, ...req.body});
 
   res.success(updatedTask)
 });
 // PATCH /api/tasks/:taskId/toggle-completed
 export const toggleCompletedTask = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
-  const updatedTask = await toggleCompleted(taskId);
+  const updatedTask = await toggleCompleted({taskId});
 
   res.success(updatedTask)
 });
@@ -50,7 +50,7 @@ export const toggleCompletedTask = asyncHandler(async (req, res) => {
 // DELETE /api/tasks/:taskId
 export const deleteTaskById = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
-  await deleteTask(taskId);
+  await deleteTask({taskId});
 
   res.success(null, 204)
 });

@@ -6,10 +6,15 @@ import {
   changeParticipantRole,
   removeParticipantFromConversation,
   leaveConversation,
-  getUserConversations
+  getUserConversations,
 } from "#controllers/conversations.controller.js";
+import { markLastMessageRead } from "#controllers/messages.controller.js";
 
-import { validateData, validateParams, validateQuery } from "#middlewares/validateData.js";
+import {
+  validateData,
+  validateParams,
+  validateQuery,
+} from "#middlewares/validateData.js";
 import { authentication } from "#middlewares/authentication.js";
 
 import {
@@ -20,7 +25,9 @@ import {
   changeParticipantRoleBodySchema,
   removeParticipantParamsSchema,
   leaveConversationParamsSchema,
-  getUserConversationsQuerySchema
+  getUserConversationsQuerySchema,
+  markLastMessageBodySchema,
+  markLastMessageParamSchema,
 } from "#schemas/conversation.schema.js";
 
 const router = Router();
@@ -62,5 +69,12 @@ router.delete(
   authentication,
   validateParams(leaveConversationParamsSchema),
   leaveConversation
+);
+router.post(
+  "/:conversationId/read",
+  authentication,
+  validateParams(markLastMessageParamSchema),
+  validateData(markLastMessageBodySchema),
+  markLastMessageRead
 );
 export default router;

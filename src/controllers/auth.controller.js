@@ -1,10 +1,7 @@
 import createError from "http-errors";
-import { findUserByEmailOrUsername, findUserById } from "#models/auth.model.js";
-import { createRefreshTokenService } from "#src/services/refreshTokenService.service.js";
-import { revokeRefreshTokenService } from "#src/services/logout.service.js";
-import { registerService } from "#src/services/register.service.js";
+import { createRefreshTokenService, revokeRefreshTokenService } from "#src/services/refreshTokenService.service.js";
+import { registerService, checkLoginService, getUserService } from "#src/services/auth.service.js";
 import { signToken } from "#utils/jwt.js";
-import bcrypt from "bcryptjs";
 const ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE
 
 export const login = async (req, res, next) => {
@@ -12,11 +9,7 @@ export const login = async (req, res, next) => {
     const { identifier, password } = req.body; 
     const deviceInfo = req.headers["user-agent"] || null;
     const ipAddress = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
-    const user = await findUserByEmailOrUsername({identifier});
-    if (!user) throw createError(401, "Invalid credentials");
-
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) throw createError(401, "Invalid credentials");
+    const user = await checkLoginService({identifier, password});
     const refreshToken = await createRefreshTokenService({userId: user.id,deviceInfo, ipAddress})
     const accessToken = signToken(user.id, ACCESS_TOKEN_EXPIRE);
 
@@ -39,9 +32,7 @@ export const register = async (req, res, next) => {
       password,
     });
 
-    res.status(201).json({
-      user,
-    });
+    res.success(user, 201);
   } catch (error) {
     next(error);
   }
@@ -52,10 +43,8 @@ export const getCurrentUser = async (req, res, next) => {
     if (!userId) {
       throw createError(401, "Unauthorized");
     }
-    const user = await findUserById({userId});
-    res.status(200).json({
-      user
-    });
+    const user = await getUserService({userId});
+    res.success(user);
   } catch (error) {
     next(error);
   }
@@ -65,7 +54,7 @@ export const logout = async (req, res, next) => {
     const userId = req.user.id;
     const refreshToken = req.body.refreshToken;
     if (!userId || !refreshToken) {
-      throw createError(404, "Not found");
+      throw createError(401, "Unauthorized");
     }
     await revokeRefreshTokenService({userId, token: refreshToken});
     res.status(200).json({

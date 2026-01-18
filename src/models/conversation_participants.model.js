@@ -17,6 +17,32 @@ export const insertConversationParticipant = async ({
     [conversationId, userId, role, addedBy, now]
   );
 };
+export const insertParticipants = async (
+  participants,
+  connection
+) => {
+  if (!participants || !participants.length) return;
+
+  const values = participants.map((p) => [
+    p.conversationId,
+    p.userId,
+    p.role,
+    p.joinedAt,
+    p.addBy,
+  ]);
+
+  const [result] = await connection.query(
+    `
+    INSERT INTO conversation_participants
+      (conversation_id, user_id, role, joined_at, added_by)
+    VALUES ?
+    `,
+    [values]
+  );
+
+  return result;
+};
+
 export const findParticipantByUserAndConversation = async ({
   userId,
   conversationId,
@@ -26,7 +52,7 @@ export const findParticipantByUserAndConversation = async ({
   const [rows] = await executor(
     `
     SELECT * FROM conversation_participants
-    WHERE user_id = ? AND conversation_id = ?
+    WHERE user_id = ? AND conversation_id = ? AND left_at IS NULL
     `,
     [userId, conversationId]
   );
@@ -49,6 +75,7 @@ export const findParticipantsForUpdate = async ({
     FROM conversation_participants
     WHERE conversation_id = ?
       AND user_id IN (${placeholders})
+      AND left_at IS NULL
     FOR UPDATE
     `,
     [conversationId, ...userIds]
@@ -68,7 +95,7 @@ export const updateConversationParticipantRole = async ({
     `
     UPDATE conversation_participants
     SET role = ?
-    WHERE conversation_id = ? AND user_id = ?
+    WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL
     `,
     [newRole, conversationId, userId]
   );
@@ -92,3 +119,18 @@ export const softDeleteParticipant = async ({
     [leftAt, leftBy, conversationId, userId]
   );
 };
+export const updateLastMessageRead = async ({
+  conversationId,
+  userId,
+  lastMessageId,
+  }) => {
+    const executor = getExecutor();
+    await executor(
+      `
+      UPDATE conversation_participants
+      SET last_message_read = ?
+      WHERE conversation_id = ? AND user_id = ? AND left_at IS NULL
+      `,
+      [lastMessageId, conversationId, userId]
+    );
+  } 

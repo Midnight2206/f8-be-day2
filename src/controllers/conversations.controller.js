@@ -8,7 +8,7 @@ import {
 } from "#src/services/conversation.service.js"
 export const getUserConversations = async (req, res, next) => {
     const userId = req.user.id;
-    const { search, type } = req.query;
+    const { search, type } = req.validatedQuery;
     try {
         const conversations = await getUserConversationsService({ userId, search, type });
         res.success(conversations);
@@ -17,10 +17,10 @@ export const getUserConversations = async (req, res, next) => {
     }
 }
 export const createConversation = async (req, res, next) => {
-    const { name, type } = req.body;
+    const { name, type, participantIds } = req.body;
     const userId = req.user.id;
     try {
-        const conversation = await createConversationService(name, type, userId);
+        const conversation = await createConversationService(name, type, userId, participantIds);
         res.success(conversation, 201);
     } catch (error) {
         next(error);

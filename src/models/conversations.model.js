@@ -50,8 +50,8 @@ export const findConversationsByUserId = async ({
 
   return rows.map(conversationMap);
 };
-export const findConversationById = async ({id}) => {
-  const executor = getExecutor();
+export const findConversationById = async ({id, connection}) => {
+  const executor = getExecutor(connection);
   const [rows] = await executor(
     `
     SELECT id, name, type, created_at, updated_at

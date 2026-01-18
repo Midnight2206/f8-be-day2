@@ -1,7 +1,7 @@
 import { getExecutor } from "#src/helper/dbExecutor.js";
 import createError from "http-errors";
 
-export const findValidRefreshToken = async (token) => {
+export const findValidRefreshToken = async ({token}) => {
   const executor = getExecutor();
   const [rows] = await executor(
     `

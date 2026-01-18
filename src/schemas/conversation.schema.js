@@ -38,6 +38,18 @@ export const createConversationBodySchema = z.object({
     .enum(CONVERSATION_TYPES, {
       errorMap: () => ({ message: "Invalid conversation type" }),
     }),
+  participantIds: z
+  .array(
+    z.coerce
+      .number({
+        invalid_type_error: "participantId must be a number",
+      })
+      .int("participantId must be an integer")
+      .min(1, "participantId must be >= 1")
+  )
+  .min(1, "participantIds must contain at least one user")
+  .optional(),
+
 });
 
 export const addParticipantBodySchema = z.object({
@@ -47,7 +59,7 @@ export const addParticipantBodySchema = z.object({
     .positive("userId must be a positive number"),
 
   role: z
-  .enum(ALL_CONVERSATION_ROLES, {
+    .enum(["member", "admin", "owner"], {
     errorMap: () => ({ message: "Invalid role" }),
   })
   .optional(),
@@ -84,3 +96,15 @@ export const leaveConversationParamsSchema = z.object({
     .int("conversationId must be an integer")
     .positive("conversationId must be a positive number"),
 });
+export const markLastMessageParamSchema = z.object({
+    conversationId: z.coerce
+      .number()
+      .int("conversationId must be an integer")
+      .positive("conversationId must be a positive number"),
+  });
+export const markLastMessageBodySchema = z.object({
+    lastMessageId: z.coerce
+      .number()
+      .int("lastMessageId must be an integer")
+      .positive("lastMessageId must be a positive number"),
+  });

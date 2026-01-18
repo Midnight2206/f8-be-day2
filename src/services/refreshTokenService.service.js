@@ -2,6 +2,7 @@ import {
   findValidRefreshToken,
   insertRefreshToken,
   resetRefreshToken,
+  deleteRefreshToken
 } from "#models/refreshToken.model.js";
 import { createRefreshToken } from "#utils/createRefreshToken.js";
 import { signToken } from "#utils/jwt.js";
@@ -9,11 +10,17 @@ import { signToken } from "#utils/jwt.js";
 const ACCESS_TOKEN_EXPIRE = Number(process.env.ACCESS_TOKEN_EXPIRE);
 const REFRESH_TOKEN_EXPIRE = Number(process.env.REFRESH_TOKEN_EXPIRE);
 
+export const revokeRefreshTokenService = async ({userId, token}) => {
+  const record = await findValidRefreshToken({ token});
+  if  (!record || record.revoked) createError(401, "Unauthorized");
+  await deleteRefreshToken({userId, token});
+};
+
 export const refreshTokenService = async (refreshToken) => {
   if (!ACCESS_TOKEN_EXPIRE || !REFRESH_TOKEN_EXPIRE) {
     throw new Error("Token expire env variables are not set");
   }
-  const tokenRecord = await findValidRefreshToken(refreshToken);
+  const tokenRecord = await findValidRefreshToken({token: refreshToken});
   const newRefreshToken = createRefreshToken();
   const now = Date.now();
   const createdAt = new Date(now);

@@ -5,7 +5,7 @@ import taskRouter from "#routes/tasks.route.js"
 import authRouter from "#routes/auth.route.js"
 import conversationRoute from '#routes/conversations.route.js';
 import messageRoute from '#routes/messages.route.js';
-import userRoute from '#routes/user.route.js';
+import userRoute from '#routes/users.route.js';
 
 const router = express.Router();
 router.use('/posts', postRouter);

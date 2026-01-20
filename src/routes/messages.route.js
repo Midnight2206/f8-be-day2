@@ -13,17 +13,17 @@ import {
   getAllMessagesInConversation,
   sendMessage,
 } from "#src/controllers/messages.controller.js";
-import { authentication } from "#src/middlewares/authentication.js";
+import { authRequired } from "#src/middlewares/authRequired.js";
 const router = express.Router({ mergeParams: true });
 router.get(
   "/",
-  authentication,
+  authRequired,
   validateParams(getAllMessagesParamsSchema),
   getAllMessagesInConversation
 );
 router.post(
   "/",
-  authentication,
+  authRequired,
   validateParams(sendMessageParamsSchema),
   validateData(sendMessageBodySchema),
   sendMessage

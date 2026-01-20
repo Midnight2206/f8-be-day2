@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { createRefreshTokenService, revokeRefreshTokenService } from "#src/services/refreshTokenService.service.js";
+import { createRefreshTokenService, revokeRefreshTokenService, addTokenToBlackList } from "#src/services/refreshTokenService.service.js";
 import { registerService, checkLoginService, getUserService } from "#src/services/auth.service.js";
 import { signToken } from "#utils/jwt.js";
 const ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE
@@ -52,14 +52,22 @@ export const getCurrentUser = async (req, res, next) => {
 export const logout = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const refreshToken = req.body.refreshToken;
-    if (!userId || !refreshToken) {
+    const token = req.user.token;
+    const exp = req.user.exp
+    
+    // const refreshToken = req.body.refreshToken;
+    // if (!userId || !refreshToken) {
+    //   throw createError(401, "Unauthorized");
+    // }
+    // await revokeRefreshTokenService({userId, token: refreshToken});
+    // res.status(200).json({
+    //   message: "Logged out successfully"
+    // });
+    if(!userId || !token) {
       throw createError(401, "Unauthorized");
     }
-    await revokeRefreshTokenService({userId, token: refreshToken});
-    res.status(200).json({
-      message: "Logged out successfully"
-    });
+    await addTokenToBlackList({token, exp});
+    res.success({message: "Logged out successfully"});
   } catch (error) {
     next(error);
   }

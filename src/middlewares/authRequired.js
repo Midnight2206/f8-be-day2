@@ -1,6 +1,7 @@
 import createError from "http-errors";
 import { verifyToken } from "#utils/jwt.js";
-export const authentication = (req, res, next) => {
+import { isTokenRevoked } from "#models/revoked_tokens.model.js";
+export const authRequired = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -9,8 +10,15 @@ export const authentication = (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
     const payload = verifyToken(token);
-
-    req.user = {id: payload.sub};
+    const revoked = await isTokenRevoked(token);
+    if (revoked) {
+      throw createError(401, "Unauthorized");
+    }
+    req.user = {
+      id: payload.sub,
+      token,
+      exp: payload.exp,
+    };
     next();
   } catch (err) {
     next(err);

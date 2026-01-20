@@ -18,6 +18,4 @@ router.use('/conversations/:conversationId/messages', messageRoute)
 router.get('/test-success', (_, res) => res.success({message: "Hello World"}))
 router.get('/test-error', () => {throw Error("Test exception")})
 
-
-
 export default router;

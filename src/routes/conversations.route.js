@@ -15,7 +15,7 @@ import {
   validateParams,
   validateQuery,
 } from "#middlewares/validateData.js";
-import { authentication } from "#middlewares/authentication.js";
+import { authRequired } from "#middlewares/authRequired.js";
 
 import {
   createConversationBodySchema,
@@ -33,19 +33,19 @@ import {
 const router = Router();
 router.get(
   "/me",
-  authentication,
+  authRequired,
   validateQuery(getUserConversationsQuerySchema),
   getUserConversations
 );
 router.post(
   "/",
-  authentication,
+  authRequired,
   validateData(createConversationBodySchema),
   createConversation
 );
 router.post(
   "/:conversationId/participants/",
-  authentication,
+  authRequired,
   validateParams(addParticipantParamsSchema),
   validateData(addParticipantBodySchema),
   addParticipantToConversation
@@ -53,26 +53,26 @@ router.post(
 
 router.patch(
   "/:conversationId/participants/:userId/role",
-  authentication,
+  authRequired,
   validateParams(changeParticipantRoleParamsSchema),
   validateData(changeParticipantRoleBodySchema),
   changeParticipantRole
 );
 router.delete(
   "/:conversationId/participants/:userId",
-  authentication,
+  authRequired,
   validateParams(removeParticipantParamsSchema),
   removeParticipantFromConversation
 );
 router.delete(
   "/:conversationId/participants/me",
-  authentication,
+  authRequired,
   validateParams(leaveConversationParamsSchema),
   leaveConversation
 );
 router.post(
   "/:conversationId/read",
-  authentication,
+  authRequired,
   validateParams(markLastMessageParamSchema),
   validateData(markLastMessageBodySchema),
   markLastMessageRead

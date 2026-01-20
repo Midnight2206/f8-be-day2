@@ -4,12 +4,20 @@ import {
   resetRefreshToken,
   deleteRefreshToken
 } from "#models/refreshToken.model.js";
+import { insertRevokedToken, isTokenRevoked } from "#models/revoked_tokens.model.js";
 import { createRefreshToken } from "#utils/createRefreshToken.js";
 import { signToken } from "#utils/jwt.js";
 
 const ACCESS_TOKEN_EXPIRE = Number(process.env.ACCESS_TOKEN_EXPIRE);
 const REFRESH_TOKEN_EXPIRE = Number(process.env.REFRESH_TOKEN_EXPIRE);
+export const addTokenToBlackList = async ({token, exp}) => {
+  const isRevoked = await isTokenRevoked(token);
+  if (isRevoked) {
+    throw new Error("Token is already revoked");
+  }
+  await insertRevokedToken({token, expiresAt: new Date(exp * 1000)});
 
+}
 export const revokeRefreshTokenService = async ({userId, token}) => {
   const record = await findValidRefreshToken({ token});
   if  (!record || record.revoked) createError(401, "Unauthorized");

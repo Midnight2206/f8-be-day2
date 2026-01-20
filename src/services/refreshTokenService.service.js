@@ -4,7 +4,7 @@ import {
   resetRefreshToken,
   deleteRefreshToken
 } from "#models/refreshToken.model.js";
-import { insertRevokedToken, isTokenRevoked } from "#models/revoked_tokens.model.js";
+import { insertRevokedToken, isTokenRevoked } from "#models/revokedTokens.model.js";
 import { createRefreshToken } from "#utils/createRefreshToken.js";
 import { signToken } from "#utils/jwt.js";
 

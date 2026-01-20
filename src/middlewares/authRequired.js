@@ -1,6 +1,6 @@
 import createError from "http-errors";
 import { verifyToken } from "#utils/jwt.js";
-import { isTokenRevoked } from "#models/revoked_tokens.model.js";
+import { isTokenRevoked } from "#models/revokedTokens.model.js";
 export const authRequired = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;

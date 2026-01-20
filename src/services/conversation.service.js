@@ -11,7 +11,7 @@ import {
   insertParticipants,
   softDeleteParticipant,
 } from "#models/conversation_participants.model.js";
-import { findUserById } from "#models/users.model.js";
+import { findUserById } from "#models/user.model.js";
 import { insertMessage } from "#models/messages.model.js";
 import mysqlPool from "#configs/database.js";
 import {

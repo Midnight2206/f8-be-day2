@@ -39,7 +39,7 @@ export const registerService = async ({ username, email, password }) => {
     updatedAt: now,
   });
   await enqueue(
-    "sendVerifyEmail",
+    "sendVerificationEmail",
     {
       userId: user.id,
       email: user.email,

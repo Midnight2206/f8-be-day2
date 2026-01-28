@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "nodemon --inspect ./server.js",
-    "start": "node ./server.js"
+    "start": "node ./server.js",
+    "queue": "nodemon ./queue/queue.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -10,8 +11,11 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "http-errors": "^2.0.1",
+    "ioredis": "^5.9.2",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.16.0",
     "nanoid": "^5.1.6",
+    "nodemailer": "^7.0.12",
     "zod": "^4.2.1"
   },
   "imports": {

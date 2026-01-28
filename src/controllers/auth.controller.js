@@ -1,7 +1,7 @@
 import createError from "http-errors";
-import { createRefreshTokenService, revokeRefreshTokenService, addTokenToBlackList } from "#src/services/refreshTokenService.service.js";
-import { registerService, checkLoginService, getUserService } from "#src/services/auth.service.js";
-import { signToken } from "#utils/jwt.js";
+import { createRefreshTokenService, revokeRefreshTokenService, addTokenToBlackList, revokeAllRefreshTokensService } from "#src/services/refreshTokenService.service.js";
+import { registerService, checkLoginService, getUserService, changePasswordService } from "#src/services/auth.service.js";
+import { signAccessToken } from "#utils/jwt.js";
 const ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE
 
 export const login = async (req, res, next) => {
@@ -11,7 +11,7 @@ export const login = async (req, res, next) => {
     const ipAddress = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
     const user = await checkLoginService({identifier, password});
     const refreshToken = await createRefreshTokenService({userId: user.id,deviceInfo, ipAddress})
-    const accessToken = signToken(user.id, ACCESS_TOKEN_EXPIRE);
+    const accessToken = signAccessToken(user.id, ACCESS_TOKEN_EXPIRE);
 
     res.status(200).json({
       user,
@@ -71,4 +71,20 @@ export const logout = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+}
+export const changePassword = async (req, res) => {
+  const userId = req.user.id
+  const token = req.user.token
+  const exp = req.user.exp
+  const {password, newPassword} = req.body
+  const success = await changePasswordService({userId, password, newPassword})
+  if (!success) {
+      throw createError(400, "Change password failed");
+    }
+  await addTokenToBlackList({token, exp})
+  await revokeAllRefreshTokensService({userId})
+  res.success(
+      { message: "Change password successfully" },
+      201
+  );
 }

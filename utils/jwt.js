@@ -1,70 +1,73 @@
-import crypto from "crypto";
+// src/utils/jwt.js
+import jwt from "jsonwebtoken";
 import createError from "http-errors";
 
-const SECRET_KEY = process.env.SECRET_KEY;
-const base64UrlEncode = (str) =>
-  Buffer.from(str)
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-const base64UrlDecode = (str) =>
-  Buffer.from(str.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString();
-export const signToken = (userId, expiresIn) => {
-  if (!SECRET_KEY) throw new Error("JWT secret key is not defined");
+/* ================= ACCESS TOKEN ================= */
 
-  const now = Math.floor(Date.now() / 1000);
-  const exp = now + Number(expiresIn);
+export const signAccessToken = (userId) => {
+  if (!process.env.JWT_ACCESS_SECRET) {
+    throw new Error("JWT_ACCESS_SECRET not defined");
+  }
 
-  const header = { alg: "HS256", typ: "JWT" };
-  const payload = { sub: userId, iat: now, exp };
-
-  const headerEncoded = base64UrlEncode(JSON.stringify(header));
-  const payloadEncoded = base64UrlEncode(JSON.stringify(payload));
-
-  const signature = crypto
-    .createHmac("sha256", SECRET_KEY)
-    .update(`${headerEncoded}.${payloadEncoded}`)
-    .digest("base64url");
-
-  return `${headerEncoded}.${payloadEncoded}.${signature}`;
+  return jwt.sign(
+    {
+      sub: userId,
+      type: "access",
+    },
+    process.env.JWT_ACCESS_SECRET,
+    {
+      expiresIn: Number(process.env.JWT_ACCESS_EXPIRES),
+    }
+  );
 };
 
-export const verifyToken = (token) => {
-  if (!SECRET_KEY) throw new Error("JWT secret key is not defined");
-  if (!token) throw createError(401, "Unauthorized");
+export const verifyAccessToken = (token) => {
+  try {
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
-  const parts = token.split(".");
-  if (parts.length !== 3) throw createError(401, "Unauthorized");
+    if (payload.type !== "access") {
+      throw createError(401, "Invalid access token");
+    }
 
-  const [headerEncoded, payloadEncoded, signature] = parts;
+    return payload;
+  } catch (err) {
+    throw createError(401, err.message || "Unauthorized");
+  }
+};
 
-  const header = JSON.parse(base64UrlDecode(headerEncoded));
-  if (header.alg !== "HS256") {
-    throw createError(401, "Invalid token algorithm");
+/* ================= VERIFY EMAIL TOKEN ================= */
+
+export const signMailToken = ({ userId, email }) => {
+  if (!process.env.JWT_EMAIL_SECRET) {
+    throw new Error("JWT_EMAIL_SECRET not defined");
   }
 
-  const expectedSig = crypto
-    .createHmac("sha256", SECRET_KEY)
-    .update(`${headerEncoded}.${payloadEncoded}`)
-    .digest("base64url");
+  return jwt.sign(
+    {
+      sub: userId,
+      email,
+      type: "verify_email",
+    },
+    process.env.JWT_EMAIL_SECRET,
+    {
+      expiresIn: Number(process.env.JWT_EMAIL_EXPIRES), // 2h
+    }
+  );
+};
 
-  if (
-    !crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSig)
-    )
-  ) {
-    throw createError(401, "Unauthorized");
+export const verifyMailToken = (token) => {
+  try {
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_EMAIL_SECRET
+    );
+
+    if (payload.type !== "verify_email") {
+      throw createError(401, "Invalid verify email token");
+    }
+
+    return payload;
+  } catch (err) {
+    throw createError(401, err.message || "Invalid or expired token");
   }
-
-  const payload = JSON.parse(base64UrlDecode(payloadEncoded));
-  if (!payload.sub) throw createError(401, "Unauthorized");
-
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    throw createError(401, "Token expired");
-  }
-
-  return payload;
 };

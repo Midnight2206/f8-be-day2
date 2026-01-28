@@ -36,7 +36,6 @@ export const createUser = async ({
     `,
     [id, email, username, password, createdAt, updatedAt]
   );
-  console.log(result);
   return {
     id,
     email,
@@ -51,3 +50,24 @@ export const findUserById = async ({userId}) => {
   );
   return userMap(rows[0]);
 }
+// models/users.model.js
+
+export const changePassword = async ({ userId, password }) => {
+  const executor = getExecutor();
+
+  const sql = `
+    UPDATE users
+    SET password = ?, updated_at = NOW()
+    WHERE id = ?
+  `;
+
+  const [result] = await executor(sql, [
+    password,
+    userId,
+  ]);
+  if (result.affectedRows === 0) {
+    return null;
+  }
+
+  return true;
+};

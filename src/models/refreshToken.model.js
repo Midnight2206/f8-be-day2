@@ -1,5 +1,4 @@
 import { getExecutor } from "#src/helper/dbExecutor.js";
-import createError from "http-errors";
 
 export const findValidRefreshToken = async ({token}) => {
   const executor = getExecutor();
@@ -16,7 +15,7 @@ export const findValidRefreshToken = async ({token}) => {
   );
 
   if (!rows.length) {
-    throw createError(401, "Unauthorized");
+    return false
   }
 
   return rows[0];
@@ -58,8 +57,9 @@ export const resetRefreshToken = async (tokenId, {token, createdAt, expiresAt}) 
     [token, createdAt, expiresAt, tokenId]
   )
   if (result.affectedRows === 0) {
-    throw createError(401, "Unauthorized");
+    return false
   }
+  return true
 }
 export const deleteRefreshToken = async ({userId, token}) => {
   const executor = getExecutor();
@@ -70,3 +70,18 @@ export const deleteRefreshToken = async ({userId, token}) => {
     [userId, token]
   );
 }
+export const revokeAllRefreshTokensByUserId = async ({ userId }) => {
+  const executor = getExecutor();
+
+  const [result] = await executor(
+    `
+      UPDATE refresh_tokens
+      SET revoked = TRUE
+      WHERE user_id = ?
+        AND revoked = FALSE
+    `,
+    [userId]
+  );
+
+  return result.affectedRows;
+};

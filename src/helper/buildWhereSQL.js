@@ -1,7 +1,6 @@
-export const buildWhere = (filter, map) => {
+export const buildWhere = (filter={}, map={}) => {
   const conditions = [];
   const params = [];
-
   for (const key in map) {
     if (filter[key] !== undefined) {
       conditions.push(`${map[key]} = ?`);

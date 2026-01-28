@@ -42,10 +42,10 @@ export const findAllPosts = async ({
   FROM posts
   ${where}
   ORDER BY ${orderBy}
-  LIMIT ?
-  OFFSET ?
+  LIMIT ${limit}
+  OFFSET ${offset}
 `;
-  const [rows] = await executor(sql, [...params, limit, offset]);
+  const [rows] = await executor(sql, params);
   return rows.map(mapPost);
 };
 

@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { verifyToken } from "#utils/jwt.js";
+import { verifyAccessToken } from "#utils/jwt.js";
 import { isTokenRevoked } from "#models/revokedToken.model.js";
 export const authRequired = async (req, res, next) => {
   try {
@@ -9,7 +9,7 @@ export const authRequired = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-    const payload = verifyToken(token);
+    const payload = verifyAccessToken(token);
     const revoked = await isTokenRevoked(token);
     if (revoked) {
       throw createError(401, "Unauthorized");

@@ -26,11 +26,11 @@ export const getAllPosts = asyncHandler(async (req, res) => {
     });
   }
   const pagination = new PostPagination({
-     page: !isNaN(pageNum) && pageNum > 0 ? pageNum : 1,
-  limit: !isNaN(perPageNum) && perPageNum > 0 ? perPageNum : 20,
-  filter: { userId },
-  sortBy: sortBy.length ? sortBy : undefined,
-  sortOrder: sortOrder.length ? sortOrder : undefined
+    page: !isNaN(pageNum) && pageNum > 0 ? pageNum : 1,
+    limit: !isNaN(perPageNum) && perPageNum > 0 ? perPageNum : 20,
+    filter: { userId },
+    sortBy: sortBy.length ? sortBy : undefined,
+    sortOrder: sortOrder.length ? sortOrder : undefined
   })
   const posts = await pagination.execute();
 

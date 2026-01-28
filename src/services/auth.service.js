@@ -72,7 +72,7 @@ export const changePasswordService = async ({
   const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
   const success = await changePassword({ userId, password: hashedPassword });
   await enqueue(
-    "sendPasswordChangedEmail",
+    "sendPasswordChangeEmail",
     {
       email: user.email,
     },
